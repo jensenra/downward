@@ -3,7 +3,7 @@
 using namespace std;
 
 namespace search_tree {
-    SearchTree::SearchTree(const SearchNode &node)
+    SearchTree::SearchTree(const TreeSearchNode &node)
         : root(node){assert(&node != nullptr);}
     void SearchTree::expand(SearchNode &node){
     };

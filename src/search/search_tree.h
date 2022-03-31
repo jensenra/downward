@@ -1,24 +1,18 @@
 #ifndef SEARCH_TREE_H
 #define SEARCH_TREE_H
 
+#include "treesearch_space.h"
 #include "search_space.h"
 #include "search_engine.h"
 #include "state_registry.h"
 
 class SearchNode;
 
-class TreeSearchNode{
-    SearchNode current;
-    SearchNode children[];
-    public:
-    TreeSearchNode(SearchNode &current, SearchNode children[]);
-};
-
 class SearchTree{
-    SearchNode root;
+    TreeSearchNode root;
 
     public:
-    SearchTree(const SearchNode &root);
+    SearchTree(const TreeSearchNode &root);
     void expand(SearchNode &node);
     void close(SearchNode &node);
     void dead_end(SearchNode &node);
