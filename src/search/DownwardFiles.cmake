@@ -410,6 +410,15 @@ fast_downward_plugin(
 )
 
 fast_downward_plugin(
+    NAME MCTS
+    HELP "Monte Carlo Tree search"
+    SOURCES
+        search_engines/monte_carlo_tree_search
+    DEPENDS SEARCH_COMMON
+)
+
+
+fast_downward_plugin(
     NAME PLUGIN_LAZY
     HELP "Best-first search with deferred evaluation (lazy)"
     SOURCES
