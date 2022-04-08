@@ -43,6 +43,14 @@ int TreeSearchNode::get_real_g() const {
     return info.real_g;
 }
 
+vector<StateID> TreeSearchNode::get_children(){
+    return info.children_state_ids;
+}
+
+void TreeSearchNode::add_child(StateID &childID){
+    info.children_state_ids.push_back(childID);
+}
+
 void TreeSearchNode::open_initial() {
     assert(info.status == TreeSearchNodeInfo::NEW);
     info.status = TreeSearchNodeInfo::OPEN;
@@ -101,7 +109,7 @@ void TreeSearchNode::mark_as_dead_end() {
     info.status = TreeSearchNodeInfo::DEAD_END;
 }
 
-void SearchNode::dump(const TaskProxy &task_proxy, utils::LogProxy &log) const {
+void TreeSearchNode::dump(const TaskProxy &task_proxy, utils::LogProxy &log) const {
     log << state.get_id() << ": ";
     task_properties::dump_fdr(state);
     if (info.creating_operator != OperatorID::no_operator) {

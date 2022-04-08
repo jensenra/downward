@@ -8,6 +8,7 @@
 #include "../search_engine.h"
 #include "../search_progress.h"
 #include "../search_space.h"
+#include "../treesearch_space.h"
 
 #include "../utils/rng.h"
 
@@ -21,16 +22,13 @@ class Options;
 namespace monte_carlo_tree_search {
 class MonteCarloTreeSearch : public SearchEngine {
 protected:
-    std::unique_ptr<EdgeOpenList> open_list;
-
     // Search behavior parameters
     bool reopen_closed_nodes; // whether to reopen closed nodes upon finding lower g paths
     bool randomize_successors;
     bool preferred_successors_first;
     std::shared_ptr<utils::RandomNumberGenerator> rng;
 
-    std::vector<Evaluator *> path_dependent_evaluators;
-    std::vector<std::shared_ptr<Evaluator>> preferred_operator_evaluators;
+    std::shared_ptr<Evaluator> heuristic;
 
     State current_state;
     StateID current_predecessor_id;
@@ -38,9 +36,16 @@ protected:
     int current_g;
     int current_real_g;
     EvaluationContext current_eval_context;
+    TreeSearchSpace tree_search_space;
 
     virtual void initialize() override;
     virtual SearchStatus step() override;
+    void trial();
+    void select_next_leaf_node();
+    void expand_tree();
+    void simulate();
+    void backpropagation();
+
 
     void generate_successors();
     SearchStatus fetch_next_state();

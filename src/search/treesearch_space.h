@@ -32,6 +32,8 @@ public:
 
     int get_g() const;
     int get_real_g() const;
+    vector<StateID> get_children();
+    void add_child(StateID &child);
 
     void open_initial();
     void open(const TreeSearchNode &parent_node,
@@ -45,7 +47,7 @@ public:
                        int adjusted_cost);
     void close();
     void mark_as_dead_end();
-
+    
     void dump(const TaskProxy &task_proxy, utils::LogProxy &log) const;
 };
 
