@@ -42,8 +42,8 @@ protected:
     virtual SearchStatus step() override;
     void trial();
     void select_next_leaf_node();
-    void expand_tree();
-    void simulate();
+    void expand_tree(State state, EvaluationContext eval_context);
+    //void simulate();
     void backpropagation();
 
 
