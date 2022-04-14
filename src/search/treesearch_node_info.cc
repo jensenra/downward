@@ -13,3 +13,7 @@ static_assert(
     sizeof(TreeSearchNodeInfo) != info_bytes + padding_bytes, 
     "The size of SearchNodeInfo is larger than expected. This probably means "
     "that packing two fields into one integer using bitfields is not supported.");
+
+StateID TreeSearchNodeInfo::get_parent(){
+        return parent_state_id;
+    }

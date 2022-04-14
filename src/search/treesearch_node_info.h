@@ -14,6 +14,9 @@ struct TreeSearchNodeInfo : public SearchNodeInfo{
     int best_h;
 
     TreeSearchNodeInfo();
+
+    public:
+    StateID get_parent();
 };
 
 #endif

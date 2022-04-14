@@ -22,7 +22,6 @@ class TreeSearchNode{
     TreeSearchNodeInfo &info;
 public:
     TreeSearchNode(const State &state, TreeSearchNodeInfo &info);
-
     const State &get_state() const;
 
     bool is_new() const;
@@ -34,6 +33,7 @@ public:
     int get_real_g() const;
     vector<StateID> get_children();
     void add_child(StateID &child);
+    StateID get_parent();
 
     void open_initial();
     void open(const TreeSearchNode &parent_node,

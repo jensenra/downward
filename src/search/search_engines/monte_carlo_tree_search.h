@@ -30,24 +30,19 @@ protected:
 
     std::shared_ptr<Evaluator> heuristic;
 
-    State current_state;
-    StateID current_predecessor_id;
-    OperatorID current_operator_id;
-    int current_g;
-    int current_real_g;
-    EvaluationContext current_eval_context;
+    int current_h;
     TreeSearchSpace tree_search_space;
 
     virtual void initialize() override;
     virtual SearchStatus step() override;
     void trial();
     void select_next_leaf_node();
-    void expand_tree(State state, EvaluationContext eval_context);
+    void expand_tree(OperatorID opid, State state, EvaluationContext eval_context);
     //void simulate();
     void backpropagation();
 
 
-    void generate_successors();
+    void generate_successors(State state, EvaluationContext eval_context);
     SearchStatus fetch_next_state();
 
     void reward_progress();

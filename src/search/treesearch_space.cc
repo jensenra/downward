@@ -99,6 +99,9 @@ void TreeSearchNode::update_parent(const TreeSearchNode &parent_node,
     info.parent_state_id = parent_node.get_state().get_id();
     info.creating_operator = OperatorID(parent_op.get_id());
 }
+StateID TreeSearchNode::get_parent(){
+    return info.get_parent();
+}
 
 void TreeSearchNode::close() {
     assert(info.status == TreeSearchNodeInfo::OPEN);
