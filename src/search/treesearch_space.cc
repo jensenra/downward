@@ -103,6 +103,10 @@ StateID TreeSearchNode::get_parent(){
     return info.get_parent();
 }
 
+OperatorID TreeSearchNode::get_operator(){
+    return info.get_operator();
+}
+
 void TreeSearchNode::close() {
     assert(info.status == TreeSearchNodeInfo::OPEN);
     info.status = TreeSearchNodeInfo::CLOSED;
@@ -123,6 +127,14 @@ void TreeSearchNode::dump(const TaskProxy &task_proxy, utils::LogProxy &log) con
     } else {
         log << " no parent" << endl;
     }
+}
+
+int TreeSearchNode::get_best_h(){
+    return info.best_h;
+}
+
+void TreeSearchNode::set_best_h(int new_best_h){
+    info.best_h = new_best_h;
 }
 
 TreeSearchSpace::TreeSearchSpace(StateRegistry &state_registry, utils::LogProxy &log)

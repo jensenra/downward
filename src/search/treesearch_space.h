@@ -34,8 +34,11 @@ public:
     vector<StateID> get_children();
     void add_child(StateID &child);
     StateID get_parent();
+    OperatorID get_operator();
 
     void open_initial();
+    int get_best_h();
+    void set_best_h(int new_best_h);
     void open(const TreeSearchNode &parent_node,
               const OperatorProxy &parent_op,
               int adjusted_cost);

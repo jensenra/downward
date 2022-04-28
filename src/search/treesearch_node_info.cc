@@ -1,6 +1,7 @@
 #include "treesearch_node_info.h"
+#include <limits>
 
-TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() ,  children_state_ids(){
+TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , best_h(numeric_limits<int>::max()),  children_state_ids(){
 
 }
 
@@ -17,3 +18,6 @@ static_assert(
 StateID TreeSearchNodeInfo::get_parent(){
         return parent_state_id;
     }
+OperatorID TreeSearchNodeInfo::get_operator(){
+    return creating_operator;
+}

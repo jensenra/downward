@@ -17,6 +17,7 @@ struct TreeSearchNodeInfo : public SearchNodeInfo{
 
     public:
     StateID get_parent();
+    OperatorID get_operator();
 };
 
 #endif
