@@ -21,7 +21,7 @@ class TreeSearchNode{
     State state;
     TreeSearchNodeInfo &info;
 public:
-    TreeSearchNode(const State &state, TreeSearchNodeInfo &info);
+    TreeSearchNode(const State &tstate, TreeSearchNodeInfo &tinfo);
     const State &get_state() const;
 
     bool is_new() const;
@@ -41,7 +41,7 @@ public:
     void set_best_h(int new_best_h);
     void open(const TreeSearchNode &parent_node,
               const OperatorProxy &parent_op,
-              int adjusted_cost);
+              int adjusted_cost, int h);
     void reopen(const TreeSearchNode &parent_node,
                 const OperatorProxy &parent_op,
                 int adjusted_cost);

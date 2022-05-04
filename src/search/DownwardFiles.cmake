@@ -414,6 +414,8 @@ fast_downward_plugin(
     HELP "Monte Carlo Tree search"
     SOURCES
         search_engines/monte_carlo_tree_search
+        treesearch_space
+        treesearch_node_info
     DEPENDS SEARCH_COMMON
 )
 

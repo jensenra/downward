@@ -30,20 +30,21 @@ protected:
 
     std::shared_ptr<Evaluator> heuristic;
 
-    State current_state;
+    //State current_state;
     StateID current_predecessor_id;
     OperatorID current_operator_id;
     int current_g;
     int current_real_g;
-    EvaluationContext current_eval_context;
-    int current_h;
+    //EvaluationContext current_eval_context;
+    //int current_h;
     TreeSearchSpace tree_search_space;
+    bool check_goal_and_set_plan(const State &state);
+public:
 
     virtual void initialize() override;
     virtual SearchStatus step() override;
-    void trial();
-    void select_next_leaf_node();
-    SearchStatus expand_tree();
+    State select_next_leaf_node(const State state);
+    SearchStatus expand_tree(const State state);
     //void simulate();
     void backpropagation();
     void update_best_h();
@@ -57,7 +58,6 @@ protected:
     std::vector<OperatorID> get_successor_operators(
         const ordered_set::OrderedSet<OperatorID> &preferred_operators) const;
 
-public:
     explicit MonteCarloTreeSearch(const options::Options &opts);
     virtual ~MonteCarloTreeSearch() = default;
 

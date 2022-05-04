@@ -11,10 +11,11 @@
 
 using namespace std;
 
-TreeSearchNode::TreeSearchNode(const State &state, TreeSearchNodeInfo &info) :
-    info(info), state(state){
+TreeSearchNode::TreeSearchNode(const State &tstate, TreeSearchNodeInfo &tinfo) :
+    info(tinfo), state(tstate){
     }
-    const State &SearchNode::get_state() const {
+
+const State &TreeSearchNode::get_state() const {
     return state;
 }
 
@@ -62,13 +63,14 @@ void TreeSearchNode::open_initial() {
 
 void TreeSearchNode::open(const TreeSearchNode &parent_node,
                       const OperatorProxy &parent_op,
-                      int adjusted_cost) {
+                      int adjusted_cost, int h) {
     assert(info.status == TreeSearchNodeInfo::NEW);
     info.status = TreeSearchNodeInfo::OPEN;
     info.g = parent_node.info.g + adjusted_cost;
     info.real_g = parent_node.info.real_g + parent_op.get_cost();
     info.parent_state_id = parent_node.get_state().get_id();
     info.creating_operator = OperatorID(parent_op.get_id());
+    info.best_h = h;
 }
 
 void TreeSearchNode::reopen(const TreeSearchNode &parent_node,
@@ -182,6 +184,6 @@ void TreeSearchSpace::dump(const TaskProxy &task_proxy) const {
     }
 }
 
-void SearchSpace::print_statistics() const {
+void TreeSearchSpace::print_statistics() const {
     state_registry.print_statistics(log);
 }
