@@ -22,10 +22,10 @@ MonteCarloTreeSearch::MonteCarloTreeSearch(const Options &opts)
     : SearchEngine(opts),
     heuristic(opts.get<shared_ptr<Evaluator>>("h")),
     //current_state(state_registry.get_initial_state()),
-    current_predecessor_id(StateID::no_state),
-    current_operator_id(OperatorID::no_operator),
-    current_g(0),
-    current_real_g(0),
+    //current_predecessor_id(StateID::no_state),
+    //current_operator_id(OperatorID::no_operator),
+    //current_g(0),
+   // current_real_g(0),
     //current_eval_context(current_state, 0, true, &statistics),
     //current_h(current_eval_context.get_result(heuristic.get()).get_evaluator_value()),
     tree_search_space(state_registry, log)
@@ -77,14 +77,14 @@ void MonteCarloTreeSearch::generate_successors(State state, EvaluationContext ev
 }
 
 State MonteCarloTreeSearch::select_next_leaf_node(const State state){
+    if(&state == nullptr)
+        return state;
     TreeSearchNode node = tree_search_space.get_node(state);
     assert(!node.is_new());
     if(node.is_open()){
-        //Move to state with state
         return state;
     }
     vector<StateID> children = node.get_children();
-    //TODO: If children empty, mark a dead end
     if(children.empty()){
         node.mark_as_dead_end();
         State* ptr = nullptr;
@@ -121,7 +121,11 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
     successor_generator.generate_applicable_ops(
     state, successor_operators);
     //TODO: deal with no appl. ops (aka dead end problems)
-    assert(!successor_operators.empty());
+    if(successor_operators.empty()){
+        if(!node.is_dead_end())
+            node.mark_as_dead_end();
+        return IN_PROGRESS;
+    }
     for (OperatorID op_id : successor_operators) {
         OperatorProxy op = task_proxy.get_operators()[op_id];
         State succ_state = state_registry.get_successor_state(state, op);
@@ -136,86 +140,37 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             EvaluationContext succ_eval_context(
             succ_state, succ_g, true, &statistics);
             int h  = succ_eval_context.get_result(heuristic.get()).get_evaluator_value();
-            succ_node.open(node, op, op.get_cost(), h);
+            succ_node.open(node, op, get_adjusted_cost(op), h);
         }else{
             //Handle reopened nodes
-            assert(false);
+            int succ_g = succ_node.get_g();
+            int new_succ_g = node.get_g() + op.get_cost();
+            node.add_child(succ_id);
+            if(new_succ_g < succ_g)
+                succ_node.reopen(node,op,get_adjusted_cost(op))
         } 
     }
-    /*
-    TreeSearchNode node = tree_search_space.get_node(current_state);
-    TreeSearchNode pred = tree_search_space.get_node(state_registry.lookup_state(current_predecessor_id));
-    bool reopen = reopen_closed_nodes && !node.is_new() &&
-        !node.is_dead_end() && (current_g < node.get_g());
-    if (node.is_new() || reopen) {
-        statistics.inc_evaluated_states();
-        if (true) {
-            // TODO: Generalize code for using multiple evaluators.
-            if (current_predecessor_id == StateID::no_state) {
-                node.open_initial();
-                if (search_progress.check_progress(current_eval_context))
-                    statistics.print_checkpoint_line(current_g);
-            } else {
-                OperatorProxy current_operator = task_proxy.get_operators()[current_operator_id];
-                if (reopen) {
-                    node.reopen(pred, current_operator, get_adjusted_cost(current_operator));
-                    statistics.inc_reopened();
-                } else {
-                    node.open(pred, current_operator, get_adjusted_cost(current_operator));
-                }
-            }
-            node.close();
-            if (check_goal_and_set_plan(current_state)){    
-                return SOLVED;
-                }
-            if (search_progress.check_progress(current_eval_context)) {
-                statistics.print_checkpoint_line(node.get_g());
-                //reward_progress();
-            }
-            generate_successors(current_state, current_eval_context);
-            statistics.inc_expanded();
-        } else {//We need this for reopening
-            node.mark_as_dead_end();
-            statistics.inc_dead_ends();
-        }
-        if (current_predecessor_id == StateID::no_state) {
-            print_initial_evaluator_values(current_eval_context, log);
-        }
-    }
-        */
     return IN_PROGRESS;
 }
-
-void MonteCarloTreeSearch::backpropagation(){  
-    while(current_predecessor_id != StateID::no_state && current_operator_id != OperatorID::no_operator){
-        update_best_h();
-        State pred = state_registry.lookup_state(tree_search_space.get_node(current_state).get_parent());
-        TreeSearchNode pred_node = tree_search_space.get_node(pred);
-        EvaluationContext pred_eval(pred,pred_node.get_g(),true,&statistics);
-        move_to_state(pred, pred_eval, pred_node.get_parent(), pred_node.get_operator());
+//TODO: change it to recursive backpropagate
+void MonteCarloTreeSearch::back_propagate(State state){ 
+    TreeSearchNode node = tree_search_space.get_node(state);
+    StateID pred_id = node.get_parent();
+    OperatorID pred_op = node.get_operator();
+    if(pred_id != StateID::no_state && pred_op != OperatorID::no_operator){
+        State pred = state_registry.lookup_state(pred_id);
+        update_best_h(pred);
+        back_propagate(pred);
     }      
 }
 
-void MonteCarloTreeSearch::move_to_state(State state, EvaluationContext eval_context, StateID pred, OperatorID op_id){  
-    current_state = state;
-    current_eval_context = eval_context;
-    current_predecessor_id = pred;
-    current_operator_id = op_id;
-    State current_predecessor = state_registry.lookup_state(current_predecessor_id);
-    OperatorProxy current_operator = task_proxy.get_operators()[current_operator_id];
-    assert(task_properties::is_applicable(current_operator, current_predecessor));
-    TreeSearchNode curr_node = tree_search_space.get_node(current_state);
-    current_g = curr_node.get_g();
-    current_real_g = curr_node.get_real_g();
-    current_h = curr_node.get_best_h();  
-}
-
-void MonteCarloTreeSearch::update_best_h(){  
-    TreeSearchNode curr_node = tree_search_space.get_node(current_state); 
+void MonteCarloTreeSearch::update_best_h(State state){  
+    TreeSearchNode curr_node = tree_search_space.get_node(state); 
     vector<StateID> children = curr_node.get_children();
     int min_h(numeric_limits<int>::max());
     for (StateID child : children) {
-        TreeSearchNode child_node = tree_search_space.get_node(state_registry.lookup_state(child));
+        State child_state = state_registry.lookup_state(child);
+        TreeSearchNode child_node = tree_search_space.get_node(child_state);
         int h_child = child_node.get_best_h();
         min_h = (h_child < min_h) ? h_child : min_h;
     }

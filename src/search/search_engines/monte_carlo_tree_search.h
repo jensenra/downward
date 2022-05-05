@@ -31,10 +31,10 @@ protected:
     std::shared_ptr<Evaluator> heuristic;
 
     //State current_state;
-    StateID current_predecessor_id;
-    OperatorID current_operator_id;
-    int current_g;
-    int current_real_g;
+    //StateID current_predecessor_id;
+    //OperatorID current_operator_id;
+    //int current_g;
+    //int current_real_g;
     //EvaluationContext current_eval_context;
     //int current_h;
     TreeSearchSpace tree_search_space;
@@ -46,8 +46,8 @@ public:
     State select_next_leaf_node(const State state);
     SearchStatus expand_tree(const State state);
     //void simulate();
-    void backpropagation();
-    void update_best_h();
+    void back_propagate(State state);
+    void update_best_h(State state);
 
     void generate_successors(State state, EvaluationContext eval_context);
     SearchStatus fetch_next_state();
