@@ -12,7 +12,7 @@
 using namespace std;
 
 TreeSearchNode::TreeSearchNode(const State &tstate, TreeSearchNodeInfo &tinfo) :
-    info(tinfo), state(tstate){
+    state(tstate), info(tinfo){
     }
 
 const State &TreeSearchNode::get_state() const {
