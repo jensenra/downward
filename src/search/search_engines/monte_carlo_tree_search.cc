@@ -14,8 +14,10 @@
 #include <algorithm>
 #include <limits>
 #include <vector>
+#include <cmath>
 
 using namespace std;
+
 
 namespace monte_carlo_tree_search {
 MonteCarloTreeSearch::MonteCarloTreeSearch(const Options &opts)
@@ -90,22 +92,27 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
         State* ptr = nullptr;
         return *ptr;
     }
-    //TODO: Add epsilon exploration
-    vector<State> min_state = vector<State>();
-    int min_h = numeric_limits<int>::max();
-    for(StateID sid : children){
-        State succ_state = state_registry.lookup_state(sid);
-        TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
-        int h = succ_node.get_best_h();
-        if(h < min_h){
-            min_h = h;
-            min_state = {succ_state};
-        }else if (h == min_h){
-            min_state.push_back(succ_state);
+    double eps = 1e-4;
+    if((double) (rand()/RAND_MAX) > eps){
+        vector<State> min_state = vector<State>();
+        int min_h = numeric_limits<int>::max();
+        for(StateID sid : children){
+            State succ_state = state_registry.lookup_state(sid);
+            TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
+            int h = succ_node.get_best_h();
+            if(h < min_h){
+                min_h = h;
+                min_state = {succ_state};
+            }else if (h == min_h){
+                min_state.push_back(succ_state);
+            }
         }
+        State succ = min_state.at(rand() % min_state.size());
+        return select_next_leaf_node(succ);
+    } else {
+        State succ = children.at(rand() % children.size());
+        return select_next_leaf_node(succ);
     }
-    State succ = min_state.at(rand() % min_state.size());
-    return select_next_leaf_node(succ);
 }
 
 SearchStatus MonteCarloTreeSearch::expand_tree(const State state){

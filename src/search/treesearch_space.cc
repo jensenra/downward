@@ -146,7 +146,7 @@ TreeSearchSpace::TreeSearchSpace(StateRegistry &state_registry, utils::LogProxy 
 TreeSearchNode TreeSearchSpace::get_node(const State &state) {
     return TreeSearchNode(state, search_node_infos[state]);
 }
-
+ 
 void TreeSearchSpace::trace_path(const State &goal_state,
                              vector<OperatorID> &path) const {
     State current_state = goal_state;
