@@ -156,7 +156,6 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
     }
     return IN_PROGRESS;
 }
-//TODO: change it to recursive backpropagate
 void MonteCarloTreeSearch::back_propagate(State state){ 
     update_best_h(state);
     TreeSearchNode node = tree_search_space.get_node(state);
@@ -172,15 +171,21 @@ void MonteCarloTreeSearch::update_best_h(State state){
     TreeSearchNode curr_node = tree_search_space.get_node(state); 
     vector<StateID> children = curr_node.get_children();
     int min_h(numeric_limits<int>::max());
+    //back propagate dead-ends
+    bool dead_end = true;
     for (StateID child : children) {
         State child_state = state_registry.lookup_state(child);
         TreeSearchNode child_node = tree_search_space.get_node(child_state);
         int h_child = child_node.get_best_h();
         min_h = (h_child < min_h) ? h_child : min_h;
+        if(!child_node.is_dead_end())
+            dead_end = false;
     }
     int h_curr = curr_node.get_best_h();
     if(h_curr > min_h)
-        curr_node.set_best_h(min_h);  
+        curr_node.set_best_h(min_h); 
+    if(dead_end) 
+        curr_node.mark_as_dead_end();
 }
 
 SearchStatus MonteCarloTreeSearch::step() {
