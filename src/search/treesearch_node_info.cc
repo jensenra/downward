@@ -15,6 +15,10 @@ static_assert(
     "The size of SearchNodeInfo is larger than expected. This probably means "
     "that packing two fields into one integer using bitfields is not supported.");
 
+void TreeSearchNodeInfo::remove_child(StateID id){
+    remove(children_state_ids.begin(), children_state_ids.end(), id);
+}
+
 StateID TreeSearchNodeInfo::get_parent(){
         return parent_state_id;
     }

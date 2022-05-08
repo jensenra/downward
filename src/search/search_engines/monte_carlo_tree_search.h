@@ -11,6 +11,7 @@
 #include "../treesearch_space.h"
 
 #include "../utils/rng.h"
+#include <priority_queues.h>
 
 #include <memory>
 #include <vector>
@@ -29,14 +30,8 @@ protected:
     std::shared_ptr<utils::RandomNumberGenerator> rng;
 
     std::shared_ptr<Evaluator> heuristic;
-
-    //State current_state;
-    //StateID current_predecessor_id;
-    //OperatorID current_operator_id;
-    //int current_g;
-    //int current_real_g;
-    //EvaluationContext current_eval_context;
-    //int current_h;
+    
+    std::priority_queue<TreeSearchNode, vector<TreeSearchNode>, std::greater<TreeSearchNode>> q;
     TreeSearchSpace tree_search_space;
     bool check_goal_and_set_plan(const State &state);
 public:
@@ -47,7 +42,10 @@ public:
     SearchStatus expand_tree(const State state);
     //void simulate();
     void back_propagate(State state);
+    void reopen_h(TreeSearchNode node, TreeSearchNode succ_node);
     void update_best_h(State state);
+    void recursive_prio_queue_add(&priority_queue<TreeSearchNode> q, TreeSearchNode node);
+    void reopen_g(State state, int g_diff, boolean first);
 
     void generate_successors(State state, EvaluationContext eval_context);
     SearchStatus fetch_next_state();

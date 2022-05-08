@@ -2,7 +2,9 @@
     "cmake.sourceDirectory": "${workspaceFolder}/src",
     "files.associations": {
         "limits": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "queue": "cpp",
+        "functional": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }

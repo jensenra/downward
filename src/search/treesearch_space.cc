@@ -73,6 +73,10 @@ void TreeSearchNode::open(const TreeSearchNode &parent_node,
     info.best_h = h;
 }
 
+void TreeSearchNode::update_g(int g_diff){
+    info.real_g = info.real_g - int g_diff;
+}
+
 void TreeSearchNode::reopen(const TreeSearchNode &parent_node,
                         const OperatorProxy &parent_op,
                         int adjusted_cost) {
@@ -129,6 +133,10 @@ void TreeSearchNode::dump(const TaskProxy &task_proxy, utils::LogProxy &log) con
     } else {
         log << " no parent" << endl;
     }
+}
+
+void TreeSearchNode::remove_child(StateID id){
+    info.remove_child(id);
 }
 
 int TreeSearchNode::get_best_h(){

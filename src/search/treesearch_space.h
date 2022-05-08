@@ -35,6 +35,11 @@ public:
     void add_child(StateID &child);
     StateID get_parent();
     OperatorID get_operator();
+    void remove_child(StateID id);
+    bool operator>(const TreeSearchNode& other){
+        return get_real_g() > other.get_real_g(); 
+    }
+
 
     void open_initial();
     int get_best_h();
@@ -50,6 +55,7 @@ public:
                        int adjusted_cost);
     void close();
     void mark_as_dead_end();
+    void update_g(int g_diff);
     
     void dump(const TaskProxy &task_proxy, utils::LogProxy &log) const;
 };
