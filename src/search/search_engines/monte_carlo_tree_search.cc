@@ -145,8 +145,8 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
         }else{
             int new_succ_g = node.get_real_g() + op.get_cost();
             if(new_succ_g < succ_g){
-                update_g(succ_state,succ_g - new_succ_g, true);
-                update_after_reopening(node,succ_node);
+                reopen_g(succ_state,succ_g - new_succ_g, true);
+                reopen_h(node,succ_node);
                 node.add_child(succ_id);
                 succ_node.reopen(node,op,get_adjusted_cost(op));
             }
@@ -181,8 +181,8 @@ void MonteCarloTreeSearch::reopen_h(TreeSearchNode node, TreeSearchNode succ_nod
 void MonteCarloTreeSearch::recursive_prio_queue_add(TreeSearchNode node){
     StateID id = node.get_parent();
     State state = state_registry.lookup_state(id);
-    if(q.)
-    q.push(node);
+    if(count(q.c.begin(), q.c.end(), node) == 0)
+        q.push(node);
     if(id == StateID::no_state)
         return;
     TreeSearchNode parent_node = tree_search_space.get_node(state);
