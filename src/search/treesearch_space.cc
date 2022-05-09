@@ -74,7 +74,7 @@ void TreeSearchNode::open(const TreeSearchNode &parent_node,
 }
 
 void TreeSearchNode::update_g(int g_diff){
-    info.real_g = info.real_g - int g_diff;
+    info.real_g = info.real_g - g_diff;
 }
 
 void TreeSearchNode::reopen(const TreeSearchNode &parent_node,
@@ -161,6 +161,7 @@ void TreeSearchSpace::trace_path(const State &goal_state,
     assert(current_state.get_registry() == &state_registry);
     assert(path.empty());
     for (;;) {
+        cout << "trace" << current_state.get_id() << endl;
         const TreeSearchNodeInfo &info = search_node_infos[current_state];
         if (info.creating_operator == OperatorID::no_operator) {
             assert(info.parent_state_id == StateID::no_state);

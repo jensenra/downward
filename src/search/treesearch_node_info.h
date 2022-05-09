@@ -10,8 +10,9 @@
 using namespace std;
 
 struct TreeSearchNodeInfo : public SearchNodeInfo{
-    vector<StateID> children_state_ids;
     int best_h;
+    vector<StateID> children_state_ids;
+    
 
     TreeSearchNodeInfo();
 

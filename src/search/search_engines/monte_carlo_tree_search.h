@@ -11,7 +11,7 @@
 #include "../treesearch_space.h"
 
 #include "../utils/rng.h"
-#include <priority_queues.h>
+#include <queue>
 
 #include <memory>
 #include <vector>
@@ -21,6 +21,12 @@ class Options;
 }
 
 namespace monte_carlo_tree_search {
+/*class Comp{
+public:
+    bool operator() (TreeSearchNode left, TreeSearchNode right) const{
+        return  left.get_real_g() > right.get_real_g();
+    };
+};*/
 class MonteCarloTreeSearch : public SearchEngine {
 protected:
     // Search behavior parameters
@@ -30,8 +36,8 @@ protected:
     std::shared_ptr<utils::RandomNumberGenerator> rng;
 
     std::shared_ptr<Evaluator> heuristic;
-    
-    std::priority_queue<TreeSearchNode, vector<TreeSearchNode>, std::greater<TreeSearchNode>> q;
+
+    //priority_queue<TreeSearchNode, vector<TreeSearchNode>, Comp > q;
     TreeSearchSpace tree_search_space;
     bool check_goal_and_set_plan(const State &state);
 public:
@@ -44,8 +50,8 @@ public:
     void back_propagate(State state);
     void reopen_h(TreeSearchNode node, TreeSearchNode succ_node);
     void update_best_h(State state);
-    void recursive_prio_queue_add(&priority_queue<TreeSearchNode> q, TreeSearchNode node);
-    void reopen_g(State state, int g_diff, boolean first);
+    //void recursive_prio_queue_add(TreeSearchNode node);
+    void reopen_g(State state, int g_diff, bool first);
 
     void generate_successors(State state, EvaluationContext eval_context);
     SearchStatus fetch_next_state();

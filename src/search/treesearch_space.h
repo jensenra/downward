@@ -36,10 +36,12 @@ public:
     StateID get_parent();
     OperatorID get_operator();
     void remove_child(StateID id);
-    bool operator>(const TreeSearchNode& other){
-        return get_real_g() > other.get_real_g(); 
-    }
-
+    /*TreeSearchNode& operator=(const TreeSearchNode node){
+        TreeSearchNodeInfo* ptr = &node.info;
+        info = *ptr;
+        state = node.state;
+        return *this;
+    }*/
 
     void open_initial();
     int get_best_h();
