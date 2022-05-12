@@ -1,0 +1,6 @@
+/home/fed/downward/build/CMakeFiles/translate.dir
+/home/fed/downward/build/CMakeFiles/edit_cache.dir
+/home/fed/downward/build/CMakeFiles/rebuild_cache.dir
+/home/fed/downward/build/search/CMakeFiles/downward.dir
+/home/fed/downward/build/search/CMakeFiles/edit_cache.dir
+/home/fed/downward/build/search/CMakeFiles/rebuild_cache.dir
