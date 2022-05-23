@@ -13,7 +13,7 @@ from common_setup import IssueConfig, IssueExperiment
 DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
-REVISIONS = ["a6260e0bba1ed434a0c1a63566df5a32902d8800"]
+REVISIONS = ["639ac930aea192fdd8d68feec3c78e170a2786ee"]
 CONFIGS = [
     IssueConfig("eps-greedy-tree", ["--search", "mcts(ff())"]),
     IssueConfig("eps-greedy-list", ["--search", "eager(epsilon_greedy(ff(),epsilon=0.0001),reopen_closed=true)"]),
@@ -25,9 +25,9 @@ ENVIRONMENT = BaselSlurmEnvironment(
     email="r.jensen@stud.unibas.ch",
     export=["PATH", "DOWNWARD_BENCHMARKS"])
 
-#if common_setup.is_test_run():
-#SUITE = IssueExperiment.DEFAULT_TEST_SUITE
-ENVIRONMENT = LocalEnvironment(processes=2)
+if common_setup.is_test_run():
+	SUITE = IssueExperiment.DEFAULT_TEST_SUITE
+	ENVIRONMENT = LocalEnvironment(processes=2)
 
 exp = IssueExperiment(
     revisions=REVISIONS,
