@@ -75,7 +75,7 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     TreeSearchNode node = tree_search_space.get_node(state);
     assert(!node.is_new());
     if(node.is_open()){
-        cout << "open:" << state.get_id() << endl;
+        //cout << "open:" << state.get_id() << endl;
         return state;
     }
     vector<StateID> children = node.get_children();
@@ -120,7 +120,8 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
     // - current_g is the g value of the current state according to the cost_type
     // - current_real_g is the g value of the current state (using real costs)
     TreeSearchNode node = tree_search_space.get_node(state);
-    assert(node.is_open());
+    if(node.is_dead_end())
+        return IN_PROGRESS;
     node.close();
     vector<OperatorID> successor_operators;
     successor_generator.generate_applicable_ops(
@@ -135,6 +136,8 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
         OperatorProxy op = task_proxy.get_operators()[op_id];
         State succ_state = state_registry.get_successor_state(state, op);
         TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
+        if(succ_node.is_dead_end())
+            continue;
         StateID succ_id = succ_state.get_id();
         int succ_g = succ_node.get_real_g();
         if(succ_node.is_new()){
@@ -143,15 +146,18 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             succ_state, succ_g, true, &statistics);
             int h  = succ_eval_context.get_result(heuristic.get()).get_evaluator_value();
             succ_node.open(node, op, get_adjusted_cost(op), h);
-            cout << "id: " << succ_node.get_operator().get_index() << endl;
+            //cout << "id: " << succ_node.get_operator().get_index() << endl;
         }else{
-            cout << "reopening" << endl;
+            //cout << "reopening" << endl;
+            
+            //cout << node.is_closed() << node.is_dead_end() << node.is_new() << endl;
             int new_succ_g = node.get_real_g() + op.get_cost();
             if(new_succ_g < succ_g){
                 reopen_g(succ_state,succ_g - new_succ_g, true);
                 reopen_h(node,succ_node);
                 node.add_child(succ_id);
                 succ_node.reopen(node,op,get_adjusted_cost(op));
+            
             }
         }
         if(check_goal_and_set_plan(succ_state)){
@@ -246,7 +252,7 @@ SearchStatus MonteCarloTreeSearch::step() {
     //cout << "Hi" <<endl;
     State leaf = select_next_leaf_node(init);
     //cout << "a" << endl;
-    cout << leaf.get_id() << endl;
+    //cout << leaf.get_id() << endl;
     SearchStatus status = expand_tree(leaf);
     //cout << "b" << endl;
     back_propagate(leaf);
