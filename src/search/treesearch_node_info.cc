@@ -17,7 +17,11 @@ static_assert(
     "that packing two fields into one integer using bitfields is not supported.");
 
 void TreeSearchNodeInfo::remove_child(StateID id){
-    remove(children_state_ids.begin(), children_state_ids.end(), id);
+    //remove(children_state_ids.begin(), children_state_ids.end(), id);
+    for (size_t i = 0; i < childre_state_ids.size(); ++i){
+        if(children_state_ids[i] == id)
+            children_state_ids[i]  = StateID::no_state;
+    }
 }
 
 StateID TreeSearchNodeInfo::get_parent(){

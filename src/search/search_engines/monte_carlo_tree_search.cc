@@ -89,6 +89,8 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
         vector<State> min_state = vector<State>();
         int min_h = numeric_limits<int>::max();
         for(StateID sid : children){
+            if(sid == StateID::no_state)
+                continue;
             State succ_state = state_registry.lookup_state(sid);
             TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
             if(succ_node.is_dead_end())
@@ -215,6 +217,8 @@ void MonteCarloTreeSearch::update_best_h(State state){
     //back propagate dead-ends
     bool dead_end = true;
     for (StateID child : children) {
+        if(child == StateID::no_state)
+            continue;
         State child_state = state_registry.lookup_state(child);
         TreeSearchNode child_node = tree_search_space.get_node(child_state);
         int h_child = child_node.get_best_h();
