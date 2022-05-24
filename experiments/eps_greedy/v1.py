@@ -25,9 +25,9 @@ ENVIRONMENT = BaselSlurmEnvironment(
     email="r.jensen@stud.unibas.ch",
     export=["PATH", "DOWNWARD_BENCHMARKS"])
 
-if common_setup.is_test_run():
-	SUITE = IssueExperiment.DEFAULT_TEST_SUITE
-	ENVIRONMENT = LocalEnvironment(processes=2)
+#if common_setup.is_test_run():
+#SUITE = IssueExperiment.DEFAULT_TEST_SUITE
+#ENVIRONMENT = LocalEnvironment(processes=2)
 
 exp = IssueExperiment(
     revisions=REVISIONS,
