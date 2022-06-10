@@ -73,7 +73,11 @@ void MonteCarloTreeSearch::generate_successors(State state, EvaluationContext ev
 
 State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     TreeSearchNode node = tree_search_space.get_node(state);
-    assert(!node.is_new());
+    if(node.is_new()){
+        StateID pred = node.get_parent();
+        State parent = state_registry.lookup_state(pred);
+        return select_next_leaf_node(parent);
+    }
     if(node.is_open()){
         //cout << "open:" << state.get_id() << endl;
         return state;
@@ -204,7 +208,6 @@ void MonteCarloTreeSearch::recursive_prio_queue_add(TreeSearchNode node){
     recursive_prio_queue_add(parent_node);
 }*/
 
-//change to use priority queue
 void MonteCarloTreeSearch::back_propagate(State state){ 
     update_best_h(state);
     TreeSearchNode node = tree_search_space.get_node(state);
