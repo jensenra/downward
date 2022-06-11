@@ -126,7 +126,7 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
     TreeSearchNode node = tree_search_space.get_node(state);
     if(node.is_dead_end())
         return IN_PROGRESS;
-    cout << node.is_open() << endl;
+    //cout << node.is_open() << endl;
     node.close();
     vector<OperatorID> successor_operators;
     successor_generator.generate_applicable_ops(
@@ -152,12 +152,12 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             int h  = succ_eval_context.get_result(heuristic.get()).get_evaluator_value();
             succ_node.open(node, op, get_adjusted_cost(op), h);
             back_propagate(state);
-            cout << "id: " << succ_node.get_operator().get_index() << endl;
+            //cout << "id: " << succ_node.get_operator().get_index() << endl;
         }else{
-            cout << "reop" << endl;
+            //cout << "reop" << endl;
             int new_succ_g = node.get_real_g() + op.get_cost();
             if(new_succ_g < succ_g){
-                cout << "if reop" << endl;
+                //cout << "if reop" << endl;
                 node.add_child(succ_id);
                 //cout << "reop new child" << endl;
                 succ_node.update_g(succ_g - new_succ_g);
@@ -173,7 +173,7 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
                 //cout << "rec updt" << endl;
                 succ_node.reopen(node,op,get_adjusted_cost(op));
                 reopen_g(succ_state,succ_g - new_succ_g); // recursive g_update
-                cout << "reopg" << endl;
+                //cout << "reopg" << endl;
             }
         }
         if(check_goal_and_set_plan(succ_state)){
@@ -187,7 +187,7 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
 
 void MonteCarloTreeSearch::reopen_g(State state,int g_diff){
     TreeSearchNode node = tree_search_space.get_node(state);
-    cout << state.get_id() << endl;
+    //cout << state.get_id() << endl;
     if(node.is_dead_end() || node.is_open())
         return;
     for(StateID s : node.get_children()){
@@ -247,14 +247,14 @@ SearchStatus MonteCarloTreeSearch::step() {
     TreeSearchNode init_node = tree_search_space.get_node(init);
     if(init_node.is_dead_end())
         return FAILED;
-    cout << "Hi" <<endl;
+    //cout << "Hi" <<endl;
     State leaf = select_next_leaf_node(init);
-    cout << "a" << endl;
-    cout << leaf.get_id() << endl;
+    //cout << "a" << endl;
+    //cout << leaf.get_id() << endl;
     SearchStatus status = expand_tree(leaf);
-    cout << "b" << endl;
+    //cout << "b" << endl;
     back_propagate(leaf);
-    cout << "c" << endl;
+    //cout << "c" << endl;
     return status;
 }
 
