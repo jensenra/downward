@@ -13,7 +13,7 @@ from common_setup import IssueConfig, IssueExperiment
 DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_NAME = os.path.splitext(os.path.basename(__file__))[0]
 BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
-REVISIONS = ["6523fa64453f58ecff91b81622ae0ee3f5d92340"]
+REVISIONS = ["c9ae3c9645e77d95e6532e97a6226c5afea4e0e8"]
 CONFIGS = [
     IssueConfig("eps-greedy-tree", ["--search", "mcts(ff())"]),
     #IssueConfig("eps-greedy-list", ["--search", "eager(epsilon_greedy(ff(),epsilon=0.0001),reopen_closed=true)"]),
