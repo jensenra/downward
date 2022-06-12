@@ -31,7 +31,7 @@ MonteCarloTreeSearch::MonteCarloTreeSearch(const Options &opts)
     */
 }
 void MonteCarloTreeSearch::initialize() {
-    log << "Conducting monte carlo tree search, (real) bound = " << bound << endl;
+    //log << "Conducting monte carlo tree search, (real) bound = " << bound << endl;
     
     State initial_state = state_registry.get_initial_state();
     heuristic->notify_initial_state(initial_state);
@@ -41,7 +41,7 @@ void MonteCarloTreeSearch::initialize() {
 
 bool MonteCarloTreeSearch::check_goal_and_set_plan(const State &state) {
     if (task_properties::is_goal_state(task_proxy, state)) {
-        log << "Solution found!" << endl;
+        //log << "Solution found!" << endl;
         Plan plan;
         tree_search_space.trace_path(state, plan);
         set_plan(plan);
@@ -101,8 +101,6 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
                 continue;
             State succ_state = state_registry.lookup_state(sid);
             TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
-            if(succ_node.is_dead_end())
-                continue;
             int h = succ_node.get_best_h();
             if(h < min_h){
                 min_h = h;
@@ -182,7 +180,7 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             }
         }
         if(check_goal_and_set_plan(succ_state)){
-            cout << "goal" << succ_state.get_id() << endl;
+            //cout << "goal" << succ_state.get_id() << endl;
             return SOLVED;
         }
     }
