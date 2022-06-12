@@ -74,6 +74,7 @@ void MonteCarloTreeSearch::generate_successors(State state, EvaluationContext ev
 State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     TreeSearchNode node = tree_search_space.get_node(state);
     if(node.is_new()){
+        //cout << "new:" << state.get_id() << endl;
         StateID pred = node.get_parent();
         State parent = state_registry.lookup_state(pred);
         return select_next_leaf_node(parent);
@@ -84,12 +85,15 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     }
     vector<StateID> children = node.get_children();
     if(children.empty()){
+        //cout << "dead:" << state.get_id() << endl;
         node.mark_as_dead_end();
         back_propagate(state);
         return state;
     }
     double eps = 1e-4;
-    if((double) (rand()/RAND_MAX) > eps){
+    double prob = drand48();
+    if(prob > eps){
+        //cout << "closed_expansion:" << state.get_id() << endl;
         vector<State> min_state = vector<State>();
         int min_h = numeric_limits<int>::max();
         for(StateID sid : children){
@@ -110,6 +114,7 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
         State succ = min_state.at(rand() % min_state.size());
         return select_next_leaf_node(succ);
     } else {
+        //cout << "closed_exploration:" << state.get_id() << endl;
         StateID succ_id = children.at(rand() % children.size());
         State succ = state_registry.lookup_state(succ_id);
         return select_next_leaf_node(succ);
