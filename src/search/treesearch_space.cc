@@ -49,7 +49,10 @@ vector<StateID> TreeSearchNode::get_children(){
 }
 
 void TreeSearchNode::add_child(StateID &childID){
-    info.children_state_ids.push_back(childID);
+    bool not_found = find(info.children_state_ids.begin(),info.children_state_ids.end(),childID) == info.children_state_ids.end();
+    if(not_found && info.get_parent().operator!=(childID)){
+        info.children_state_ids.push_back(childID);
+    }
 }
 
 void TreeSearchNode::open_initial() {
@@ -136,7 +139,9 @@ void TreeSearchNode::dump(const TaskProxy &task_proxy, utils::LogProxy &log) con
 }
 
 void TreeSearchNode::remove_child(StateID id){
+    //cout << info.children_state_ids << endl;
     info.remove_child(id);
+    //cout << info.children_state_ids<<"  after" << endl;
 }
 
 int TreeSearchNode::get_best_h(){
