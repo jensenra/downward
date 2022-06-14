@@ -40,7 +40,9 @@ public:
     State select_next_leaf_node(const State state);
     SearchStatus expand_tree(const State state);
     void back_propagate(State state);
-    void reopen_g(State state, int g_diff);
+    void back_propagate_dead_end(State state);
+    void back_propagate_best_h(State state);
+    void forward_propagate_g(State state, int g_diff);
 
     void generate_successors(State state, EvaluationContext eval_context);
     SearchStatus fetch_next_state();

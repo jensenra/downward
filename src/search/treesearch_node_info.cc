@@ -1,8 +1,8 @@
 #include "treesearch_node_info.h"
-#include <limits>
+#include <limits.h>
 #include <algorithm>
 
-TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , best_h(numeric_limits<int>::max()),  children_state_ids(){
+TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , best_h(INT_MAX),  children_state_ids(){
 
 }
 

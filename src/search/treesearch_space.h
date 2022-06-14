@@ -32,7 +32,7 @@ public:
     int get_g() const;
     int get_real_g() const;
     vector<StateID> get_children();
-    void add_child(StateID &child);
+    void add_child(StateID &id);
     StateID get_parent();
     OperatorID get_operator();
     void remove_child(StateID id);
@@ -48,7 +48,7 @@ public:
     void set_best_h(int new_best_h);
     void open(const TreeSearchNode &parent_node,
               const OperatorProxy &parent_op,
-              int adjusted_cost, int h);
+              int adjusted_cost);
     void reopen(const TreeSearchNode &parent_node,
                 const OperatorProxy &parent_op,
                 int adjusted_cost);
