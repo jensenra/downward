@@ -41,6 +41,7 @@ public:
     SearchStatus expand_tree(const State state);
     void back_propagate(State state);
     void back_propagate_dead_end(State state);
+    void re_back_propagate_best_h(State state);
     void back_propagate_best_h(State state);
     void forward_propagate_g(State state, int g_diff);
 
