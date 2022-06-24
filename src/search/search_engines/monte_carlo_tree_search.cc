@@ -39,7 +39,6 @@ void MonteCarloTreeSearch::initialize() {
     int h = (init_eval.get_result(heuristic.get())).get_evaluator_value();
     init.open_initial(h);
     statistics.inc_evaluated_states();
-
 }
 
 bool MonteCarloTreeSearch::check_goal_and_set_plan(const State &state) {
@@ -100,17 +99,6 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
         statistics.inc_dead_ends();
         return IN_PROGRESS;
     }
-    bool no_addition = true;
-    /*
-    vector<StateID> all_succs = {};
-    for (OperatorID op_id : successor_operators) { 
-        OperatorProxy op = task_proxy.get_operators()[op_id];
-        State succ_state = state_registry.get_successor_state(state, op);
-        StateID succ_id = succ_state.get_id();
-        all_succs.push_back(succ_id);
-    }*/
-    
-    //cout << "successors:" <<all_succs << endl;
     for (OperatorID op_id : successor_operators) {
         statistics.inc_generated();
         OperatorProxy op = task_proxy.get_operators()[op_id];
@@ -118,10 +106,7 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
         TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
         StateID succ_id = succ_state.get_id();
         int succ_g = succ_node.get_real_g();
-        int succ_h;
         if(succ_node.is_new()){
-            //cout << "new_succ_id: " << succ_id << endl;
-            no_addition = false;
             node.add_child(succ_id);
             EvaluationContext succ_eval_context(
             succ_state, succ_g, true, &statistics);
@@ -152,14 +137,11 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             return SOLVED;
         }
     }
-    //cout << "children: "<< node.get_children() << endl;
-    if(no_addition){
-        node.mark_as_dead_end();
-    }
+
     return IN_PROGRESS;
 }
 
-void MonteCarloTreeSearch::forward_propagate_g(State state,int g_diff){
+void MonteCarloTreeSearch::reopen_g(State state,int g_diff){
     TreeSearchNode node = tree_search_space.get_node(state);
     if(node.is_dead_end() || node.is_open())
         return;
@@ -171,7 +153,7 @@ void MonteCarloTreeSearch::forward_propagate_g(State state,int g_diff){
     }
 }
 
-void MonteCarloTreeSearch::back_propagate_dead_end(State state){
+void MonteCarloTreeSearch::back_propagate(State state){
     TreeSearchNode node = tree_search_space.get_node(state);
     bool dead_end = true;
     int min_h = INT_MAX;
@@ -179,7 +161,7 @@ void MonteCarloTreeSearch::back_propagate_dead_end(State state){
         State child_state = state_registry.lookup_state(child);
         TreeSearchNode child_node = tree_search_space.get_node(child_state);
         int h_child = child_node.get_best_h();
-        if(child_node.is_dead_end() && (h_child == INT_MAX)){
+        if(child_node.is_dead_end() || (h_child == INT_MAX)){
             continue;
         }
         if(h_child < min_h)
@@ -192,7 +174,7 @@ void MonteCarloTreeSearch::back_propagate_dead_end(State state){
         node.mark_as_dead_end();
         node.set_best_h(min_h);
         statistics.inc_dead_ends();
-    }else{
+    }else if(!dead_end){
         int curr_h = node.get_best_h();
         if(curr_h == min_h){
             return;
@@ -208,11 +190,10 @@ void MonteCarloTreeSearch::back_propagate_dead_end(State state){
     }   
 }
 
-
 SearchStatus MonteCarloTreeSearch::step() {
     State init = state_registry.get_initial_state();
     TreeSearchNode init_node = tree_search_space.get_node(init);
-    if(init_node.is_dead_end()){
+    if(init_node.is_dead_end())
         return FAILED;
     State leaf = select_next_leaf_node(init);
     //cout << "leaf:" << leaf.get_id() << endl;
