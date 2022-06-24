@@ -161,7 +161,7 @@ void MonteCarloTreeSearch::back_propagate(State state){
         State child_state = state_registry.lookup_state(child);
         TreeSearchNode child_node = tree_search_space.get_node(child_state);
         int h_child = child_node.get_best_h();
-        if(child_node.is_dead_end() && (h_child == INT_MAX)){
+        if(child_node.is_dead_end() || (h_child == INT_MAX)){
             continue;
         }
         if(h_child < min_h)
@@ -174,7 +174,7 @@ void MonteCarloTreeSearch::back_propagate(State state){
         node.mark_as_dead_end();
         node.set_best_h(min_h);
         statistics.inc_dead_ends();
-    }else{
+    }else if(!dead_end){
         int curr_h = node.get_best_h();
         if(curr_h == min_h){
             return;
