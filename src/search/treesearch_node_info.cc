@@ -2,7 +2,7 @@
 #include <limits.h>
 #include <algorithm>
 
-TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , best_h(INT_MAX),  children_state_ids(){
+TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , best_h(-1),  children_state_ids(){
 
 }
 
@@ -17,7 +17,6 @@ static_assert(
     "that packing two fields into one integer using bitfields is not supported.");
 
 void TreeSearchNodeInfo::remove_child(StateID id){
-    //remove(children_state_ids.begin(), children_state_ids.end(), id);
     for (vector<StateID>::iterator it = children_state_ids.begin(); it!=children_state_ids.end(); it++){
         if(it->operator==(id))
             it = --children_state_ids.erase(it);

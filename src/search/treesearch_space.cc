@@ -48,25 +48,21 @@ vector<StateID> TreeSearchNode::get_children(){
     return info.children_state_ids;
 }
 
-void TreeSearchNode::add_child(StateID &id){
-    //cout << "before: " << info.children_state_ids << endl;
-    bool contains = false;
-    for (vector<StateID>::iterator it = info.children_state_ids.begin(); it!=info.children_state_ids.end(); it++){
-        contains |= it->operator==(id);
+void TreeSearchNode::add_child(StateID &childID){
+    bool not_found = find(info.children_state_ids.begin(),info.children_state_ids.end(),childID) == info.children_state_ids.end();
+    if(not_found && info.get_parent() != childID){
+        info.children_state_ids.push_back(childID);
     }
-    if(!contains){
-        info.children_state_ids.push_back(id);
-    }
-    //cout << "after: " << info.children_state_ids << endl;
 }
 
-void TreeSearchNode::open_initial() {
+void TreeSearchNode::open_initial(int h) {
     assert(info.status == TreeSearchNodeInfo::NEW);
     info.status = TreeSearchNodeInfo::OPEN;
     info.g = 0;
     info.real_g = 0;
     info.parent_state_id = StateID::no_state;
     info.creating_operator = OperatorID::no_operator;
+    info.best_h = h;
 }
 
 void TreeSearchNode::open(const TreeSearchNode &parent_node,

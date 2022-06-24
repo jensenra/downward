@@ -24,6 +24,7 @@ namespace monte_carlo_tree_search {
 class MonteCarloTreeSearch : public SearchEngine {
 protected:
     // Search behavior parameters
+    double epsilon;
     bool reopen_closed_nodes; // whether to reopen closed nodes upon finding lower g paths
     bool randomize_successors;
     bool preferred_successors_first;
@@ -45,19 +46,11 @@ public:
     void back_propagate_best_h(State state);
     void forward_propagate_g(State state, int g_diff);
 
-    void generate_successors(State state, EvaluationContext eval_context);
-    SearchStatus fetch_next_state();
-
-    void reward_progress();
-    void move_to_state(State state, EvaluationContext eval_context, StateID pred, OperatorID op_id);
-
     std::vector<OperatorID> get_successor_operators(
         const ordered_set::OrderedSet<OperatorID> &preferred_operators) const;
 
     explicit MonteCarloTreeSearch(const options::Options &opts);
     virtual ~MonteCarloTreeSearch() = default;
-
-    void set_preferred_operator_evaluators(std::vector<std::shared_ptr<Evaluator>> &evaluators);
 
     virtual void print_statistics() const override;
 };

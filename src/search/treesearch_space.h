@@ -36,14 +36,7 @@ public:
     StateID get_parent();
     OperatorID get_operator();
     void remove_child(StateID id);
-    /*TreeSearchNode& operator=(const TreeSearchNode node){
-        TreeSearchNodeInfo* ptr = &node.info;
-        info = *ptr;
-        state = node.state;
-        return *this;
-    }*/
-
-    void open_initial();
+    void open_initial(int h);
     int get_best_h();
     void set_best_h(int new_best_h);
     void open(const TreeSearchNode &parent_node,
