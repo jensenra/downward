@@ -67,14 +67,13 @@ void TreeSearchNode::open_initial(int h) {
 
 void TreeSearchNode::open(const TreeSearchNode &parent_node,
                       const OperatorProxy &parent_op,
-                      int adjusted_cost, int h) {
+                      int adjusted_cost) {
     assert(info.status == TreeSearchNodeInfo::NEW);
     info.status = TreeSearchNodeInfo::OPEN;
     info.g = parent_node.info.g + adjusted_cost;
     info.real_g = parent_node.info.real_g + parent_op.get_cost();
     info.parent_state_id = parent_node.get_state().get_id();
     info.creating_operator = OperatorID(parent_op.get_id());
-    info.best_h = h;
 }
 
 void TreeSearchNode::update_g(int g_diff){
@@ -167,7 +166,7 @@ void TreeSearchSpace::trace_path(const State &goal_state,
     assert(current_state.get_registry() == &state_registry);
     assert(path.empty());
     for (;;) {
-        cout << "trace" << current_state.get_id() << endl;
+        //cout << "trace" << current_state.get_id() << endl;
         const TreeSearchNodeInfo &info = search_node_infos[current_state];
         if (info.creating_operator == OperatorID::no_operator) {
             assert(info.parent_state_id == StateID::no_state);

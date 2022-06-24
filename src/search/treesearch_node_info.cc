@@ -1,5 +1,5 @@
 #include "treesearch_node_info.h"
-#include <limits>
+#include <limits.h>
 #include <algorithm>
 
 TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , best_h(-1),  children_state_ids(){
