@@ -41,7 +41,7 @@ public:
     void set_best_h(int new_best_h);
     void open(const TreeSearchNode &parent_node,
               const OperatorProxy &parent_op,
-              int adjusted_cost);
+              int adjusted_cost, int h);
     void reopen(const TreeSearchNode &parent_node,
                 const OperatorProxy &parent_op,
                 int adjusted_cost);

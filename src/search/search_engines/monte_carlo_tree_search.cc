@@ -84,9 +84,7 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
 
 SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
     TreeSearchNode node = tree_search_space.get_node(state);
-    if(node.is_dead_end() || node.is_closed() || node.is_new()){
-        exit(228);
-    }
+    assert(node.is_open());
     node.close();
     statistics.inc_expanded();
     vector<OperatorID> successor_operators;
