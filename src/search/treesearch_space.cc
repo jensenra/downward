@@ -140,9 +140,9 @@ void TreeSearchNode::dump(const TaskProxy &task_proxy, utils::LogProxy &log) con
 }
 
 void TreeSearchNode::remove_child(StateID id){
-    //cout << info.children_state_ids << endl;
+    //cout << "before:" << info.children_state_ids << endl;
     info.remove_child(id);
-    //cout << info.children_state_ids<<"  after" << endl;
+    //cout << "after:" << info.children_state_ids << "dead:" << is_dead_end() << endl;
 }
 
 int TreeSearchNode::get_best_h(){

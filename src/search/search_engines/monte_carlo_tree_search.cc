@@ -118,17 +118,24 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
         }else if(succ_node.is_closed() && reopen_closed_nodes){
             int new_succ_g = node.get_real_g() + op.get_cost();
             if(new_succ_g < succ_g){
-                statistics.inc_reopened();
-                node.add_child(succ_id);
-                succ_node.update_g(succ_g - new_succ_g);
                 State previous_parent = state_registry.lookup_state(succ_node.get_parent());
                 TreeSearchNode pred_node = tree_search_space.get_node(previous_parent);//previous parent node
-                State current_parent = node.get_state();//new parent node
-                StateID curr_id = succ_node.get_state().get_id();
-                pred_node.remove_child(curr_id);//remove child from old parent
-                back_propagate(previous_parent);//We bp this because it might now contain a dead-end/higher best-h
-                succ_node.reopen(node,op,get_adjusted_cost(op));
+                StateID succ_id = succ_node.get_state().get_id();
+                
+                succ_node.update_g(succ_g - new_succ_g);
                 reopen_g(succ_state,succ_g - new_succ_g); // recursive g_update
+
+                if(succ_node.get_parent() == state.get_id()){
+                    continue;
+                }
+                //cout<< "old parent:"<<previous_parent.get_id() << " new parent:" << state.get_id() << endl;
+                pred_node.remove_child(succ_id);//remove child from old parent
+                node.add_child(succ_id);//new parent node is state
+                
+                succ_node.reopen(node,op,get_adjusted_cost(op));
+                statistics.inc_reopened();
+
+                back_propagate(previous_parent);//We bp this because it might now contain a dead-end/higher best-h
             }
         }
         if(check_goal_and_set_plan(succ_state)){
@@ -168,7 +175,8 @@ void MonteCarloTreeSearch::back_propagate(State state){
     }
     if(dead_end && !node.is_dead_end()) {
         assert(min_h == INT_MAX);
-        //cout << "mark bp:" << state.get_id();
+        //cout << "children:" << node.get_children() << endl;
+        //cout << "mark bp:" << state.get_id() << endl;
         node.mark_as_dead_end();
         node.set_best_h(min_h);
         statistics.inc_dead_ends();
