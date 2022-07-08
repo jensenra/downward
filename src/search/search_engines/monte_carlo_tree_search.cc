@@ -60,7 +60,7 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     vector<StateID> children = node.get_children();
     assert(!children.empty());
     double prob = drand48();
-    bool epsilon_greedy = (epsilon >= prob);
+    bool epsilon_greedy = epsilon >= prob;
     vector<State> min_state = vector<State>();
     int min_h = INT_MAX;
     for(StateID sid : children){
@@ -111,7 +111,7 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             statistics.inc_evaluated_states();
             int h  = succ_eval_context.get_result(heuristic.get()).get_evaluator_value();
             succ_node.open(node, op, get_adjusted_cost(op), h);
-            if(h == bound){
+            if(h >= bound){
                 succ_node.mark_as_dead_end();
                 succ_node.set_best_h(INT_MAX);
             }
@@ -120,25 +120,22 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             if(new_succ_g < succ_g){
                 State previous_parent = state_registry.lookup_state(succ_node.get_parent());
                 TreeSearchNode pred_node = tree_search_space.get_node(previous_parent);//previous parent node
+                StateID succ_id = succ_node.get_state().get_id();
                 
-                succ_node.reopen(node,op,get_adjusted_cost(op));
+                succ_node.update_g(succ_g - new_succ_g);
                 reopen_g(succ_state,succ_g - new_succ_g); // recursive g_update
 
-                if(previous_parent != state){
-                    //cout<< "old parent:"<<previous_parent.get_id() << " new parent:" << state.get_id() << endl;
-                    pred_node.remove_child(succ_id);//remove child from old parent
-                    node.add_child(succ_id);//new parent node is state
-                
-                    statistics.inc_reopened();
-                
-                    back_propagate(previous_parent);//We bp this because it might now contain a dead-end/higher best-h
+                if(succ_node.get_parent() == state.get_id()){
+                    continue;
                 }
-            }
-        }else if(!reopen_closed_nodes || state_registry.lookup_state(succ_node.get_parent()) == state){
-            int new_succ_g = node.get_real_g() + op.get_cost();
-            if(new_succ_g < succ_g){
-                succ_node.update_parent(node,op,get_adjusted_cost(op));
-                reopen_g(succ_state,succ_g - new_succ_g); // recursive g_update
+                //cout<< "old parent:"<<previous_parent.get_id() << " new parent:" << state.get_id() << endl;
+                pred_node.remove_child(succ_id);//remove child from old parent
+                node.add_child(succ_id);//new parent node is state
+                
+                succ_node.reopen(node,op,get_adjusted_cost(op));
+                statistics.inc_reopened();
+
+                back_propagate(previous_parent);//We bp this because it might now contain a dead-end/higher best-h
             }
         }
         if(check_goal_and_set_plan(succ_state)){
