@@ -34,6 +34,21 @@ bool TreeSearchNode::is_dead_end() const {
 bool TreeSearchNode::is_new() const {
     return info.status == TreeSearchNodeInfo::NEW;
 }
+int TreeSearchNode::get_distance_from_root() const {
+    return info.distance_from_root;
+}
+
+void TreeSearchNode::set_distance_from_root(int dist){
+    info.distance_from_root = dist;
+}
+
+void TreeSearchNode::inc_visited() {
+    info.visited += 1;
+}
+
+int TreeSearchNode::get_visited() const {
+    return info.visited;
+}
 
 int TreeSearchNode::get_g() const {
     assert(info.g >= 0);

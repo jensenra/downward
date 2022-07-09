@@ -23,6 +23,7 @@ namespace monte_carlo_tree_search {
 MonteCarloTreeSearch::MonteCarloTreeSearch(const Options &opts)
     : SearchEngine(opts),
     epsilon(opts.get<double>("epsilon")),
+    max_distance(1),
     reopen_closed_nodes(opts.get<bool>("reopen_closed_nodes")),
     heuristic(opts.get<shared_ptr<Evaluator>>("h")),
     tree_search_space(state_registry, log)
@@ -35,6 +36,7 @@ MonteCarloTreeSearch::MonteCarloTreeSearch(const Options &opts)
 void MonteCarloTreeSearch::initialize() {
     State initial_state = state_registry.get_initial_state();
     TreeSearchNode init = tree_search_space.get_node(initial_state);
+    init.set_distance_from_root(0);
     EvaluationContext init_eval(initial_state,0,true,&statistics);
     int h = (init_eval.get_result(heuristic.get())).get_evaluator_value();
     init.open_initial(h);
@@ -53,6 +55,8 @@ bool MonteCarloTreeSearch::check_goal_and_set_plan(const State &state) {
 
 State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     TreeSearchNode node = tree_search_space.get_node(state);
+    StateID par = node.get_parent();
+    node.inc_visited();
     assert(!node.is_new() && !node.is_dead_end());
     if(node.is_open()){
         return state;
@@ -60,7 +64,14 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     vector<StateID> children = node.get_children();
     assert(!children.empty());
     double prob = drand48();
-    bool epsilon_greedy = epsilon >= prob;
+    int dist = node.get_distance_from_root();
+    double eps = epsilon;
+    if(par != StateID::no_state){
+        TreeSearchNode parent_node = tree_search_space.get_node(state_registry.lookup_state(par));
+        eps *= sqrt((double)(max_distance - dist)*node.get_visited()/(max_distance*parent_node.get_visited()));
+    }else eps *= sqrt((double)(max_distance - dist)/(max_distance));
+    //cout << eps << endl;
+    bool epsilon_greedy = eps >= prob;
     vector<State> min_state = vector<State>();
     int min_h = INT_MAX;
     for(StateID sid : children){
@@ -111,6 +122,13 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             statistics.inc_evaluated_states();
             int h  = succ_eval_context.get_result(heuristic.get()).get_evaluator_value();
             succ_node.open(node, op, get_adjusted_cost(op), h);
+            int succ_dist = node.get_distance_from_root()+1;
+            //cout << "succ_dist " << succ_dist << endl; 
+            succ_node.set_distance_from_root(succ_dist);
+            if(succ_dist > max_distance){
+                max_distance = succ_dist;
+                //cout << "new max dist " << max_distance << endl; 
+            }
             if(h >= bound){
                 succ_node.mark_as_dead_end();
                 succ_node.set_best_h(INT_MAX);
@@ -131,7 +149,16 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
                 //cout<< "old parent:"<<previous_parent.get_id() << " new parent:" << state.get_id() << endl;
                 pred_node.remove_child(succ_id);//remove child from old parent
                 node.add_child(succ_id);//new parent node is state
+
                 
+                int succ_dist = node.get_distance_from_root()+1;
+                //cout << "succ_dist " << succ_dist << endl; 
+                succ_node.set_distance_from_root(succ_dist);
+                if(succ_dist > max_distance){
+                    max_distance = succ_dist;
+                    //cout << "new max dist " << max_distance << endl; 
+                }
+                    
                 succ_node.reopen(node,op,get_adjusted_cost(op));
                 statistics.inc_reopened();
 

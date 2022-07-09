@@ -25,6 +25,7 @@ class MonteCarloTreeSearch : public SearchEngine {
 protected:
     // Search behavior parameters
     double epsilon;
+    int max_distance;
     bool reopen_closed_nodes; // whether to reopen closed nodes upon finding lower g paths
     bool randomize_successors;
     bool preferred_successors_first;

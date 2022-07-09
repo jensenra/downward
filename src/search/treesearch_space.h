@@ -29,6 +29,11 @@ public:
     bool is_closed() const;
     bool is_dead_end() const;
 
+    int get_distance_from_root() const;
+    void set_distance_from_root(int dist);
+    void inc_visited();
+    int get_visited() const;
+
     int get_g() const;
     int get_real_g() const;
     vector<StateID> get_children();

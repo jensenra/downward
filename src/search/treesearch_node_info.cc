@@ -2,7 +2,7 @@
 #include <limits.h>
 #include <algorithm>
 
-TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , best_h(-1),  children_state_ids(){
+TreeSearchNodeInfo::TreeSearchNodeInfo() : SearchNodeInfo() , visited(1), distance_from_root(-1), best_h(-1),  children_state_ids(){
 
 }
 
