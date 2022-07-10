@@ -24,9 +24,10 @@ namespace monte_carlo_tree_search {
 class MonteCarloTreeSearch : public SearchEngine {
 protected:
     // Search behavior parameters
-    double epsilon;
-    int max_distance;
+    double p;
     bool reopen_closed_nodes; // whether to reopen closed nodes upon finding lower g paths
+    double eps;
+    double delt;
     bool randomize_successors;
     bool preferred_successors_first;
     std::shared_ptr<utils::RandomNumberGenerator> rng;

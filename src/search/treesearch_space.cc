@@ -8,6 +8,7 @@
 #include "utils/logging.h"
 
 #include <cassert>
+#include <limits.h>
 
 using namespace std;
 
@@ -34,20 +35,29 @@ bool TreeSearchNode::is_dead_end() const {
 bool TreeSearchNode::is_new() const {
     return info.status == TreeSearchNodeInfo::NEW;
 }
-int TreeSearchNode::get_distance_from_root() const {
-    return info.distance_from_root;
-}
-
-void TreeSearchNode::set_distance_from_root(int dist){
-    info.distance_from_root = dist;
-}
 
 void TreeSearchNode::inc_visited() {
     info.visited += 1;
 }
 
+void TreeSearchNode::inc_l() {
+    info.l += 1;
+}
+
+void TreeSearchNode::add_reward(double reward){
+    info.reward_sum += reward;
+}
+
 int TreeSearchNode::get_visited() const {
     return info.visited;
+}
+
+int TreeSearchNode::get_l() const {
+    return info.l;
+}
+
+double TreeSearchNode::get_reward() const {
+    return info.reward_sum;
 }
 
 int TreeSearchNode::get_g() const {
@@ -158,6 +168,10 @@ void TreeSearchNode::remove_child(StateID id){
     //cout << info.children_state_ids << endl;
     info.remove_child(id);
     //cout << info.children_state_ids<<"  after" << endl;
+}
+
+void TreeSearchNode::reset_visited(){
+    info.visited = 0;
 }
 
 int TreeSearchNode::get_best_h(){

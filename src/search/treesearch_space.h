@@ -29,9 +29,12 @@ public:
     bool is_closed() const;
     bool is_dead_end() const;
 
-    int get_distance_from_root() const;
-    void set_distance_from_root(int dist);
     void inc_visited();
+    void inc_l();
+    void reset_visited();
+    void add_reward(double reward);
+    double get_reward() const;
+    int get_l() const;
     int get_visited() const;
 
     int get_g() const;

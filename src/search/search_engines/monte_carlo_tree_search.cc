@@ -22,9 +22,10 @@ using namespace std;
 namespace monte_carlo_tree_search {
 MonteCarloTreeSearch::MonteCarloTreeSearch(const Options &opts)
     : SearchEngine(opts),
-    epsilon(opts.get<double>("epsilon")),
-    max_distance(1),
+    p(opts.get<double>("p")),
     reopen_closed_nodes(opts.get<bool>("reopen_closed_nodes")),
+    eps(opts.get<double>("epsilon")),
+    delt(opts.get<double>("delta")),
     heuristic(opts.get<shared_ptr<Evaluator>>("h")),
     tree_search_space(state_registry, log)
     {
@@ -36,7 +37,6 @@ MonteCarloTreeSearch::MonteCarloTreeSearch(const Options &opts)
 void MonteCarloTreeSearch::initialize() {
     State initial_state = state_registry.get_initial_state();
     TreeSearchNode init = tree_search_space.get_node(initial_state);
-    init.set_distance_from_root(0);
     EvaluationContext init_eval(initial_state,0,true,&statistics);
     int h = (init_eval.get_result(heuristic.get())).get_evaluator_value();
     init.open_initial(h);
@@ -63,24 +63,81 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     }
     vector<StateID> children = node.get_children();
     assert(!children.empty());
+    if(children.size() == 1){
+        return select_next_leaf_node(state_registry.lookup_state(children.at(0)));
+    }
+    int min_visits = INT_MAX;
+    for(StateID sid : children){
+        State succ_state = state_registry.lookup_state(sid);
+        TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
+        int v = succ_node.get_visited();
+        if(min_visits > v){
+            min_visits = v;
+        }
+    }
+    //PAC-bound with Median elimination
+    int l = node.get_l();
+    double eps_l = (l==0)?eps/4:eps*pow(0.75,l)/4;
+    double delt_l = (l==0)?delt/2:delt*pow(0.5,l)/2;
+    double visit_bound = 1/(pow(eps_l/2,2)*logl(3/delt_l)) + 1.0;
+    if(min_visits > visit_bound){ 
+        double mean = 0;
+        double median = 0;
+        vector<double> rewards = {};
+        for(StateID sid : node.get_children()){
+            State succ_state = state_registry.lookup_state(sid);
+            TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
+            int v = succ_node.get_visited();
+            double r = succ_node.get_reward();
+            mean += (r/v);
+            rewards.push_back((r/v));
+        }
+        mean /= node.get_children().size();
+        if(node.get_children().size() % 2 == 0){
+            double med1 = INT_MAX;
+            double med2 = INT_MAX;
+            for(double r : rewards){
+                double diff1 = abs(med1 - mean);
+                double diff2 = abs(med2 - mean);
+                if(diff1 > abs(r - mean)){
+                    double swap = med1;
+                    med1 = r;
+                    med2 = swap;
+                }else if(diff2 > abs(r - mean)){
+                    med2 = r;
+                }
+            }
+            median = (med1 + med2) / 2;
+        }else{
+            double med = INT_MAX;
+            for(double r : rewards){
+                double diff = abs(med - mean);
+                if(diff > abs(r - mean)){
+                    med = r;
+                }
+            }
+            median = med;
+        }
+        for(StateID sid : node.get_children()){
+            State succ_state = state_registry.lookup_state(sid);
+            TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
+            if(succ_node.get_reward()/succ_node.get_visited() > median){
+                //cout << "median removal: "<< state.get_id() << endl;
+                if(succ_node.get_best_h() != node.get_best_h())
+                    node.remove_child(sid);
+            }else succ_node.reset_visited();
+        }
+        node.inc_l();
+    }
     double prob = drand48();
-    int dist = node.get_distance_from_root();
-    double eps = epsilon;
-    if(par != StateID::no_state){
-        TreeSearchNode parent_node = tree_search_space.get_node(state_registry.lookup_state(par));
-        eps *= sqrt((double)(max_distance - dist)*node.get_visited()/(max_distance*parent_node.get_visited()));
-    }else eps *= sqrt((double)(max_distance - dist)/(max_distance));
     //cout << eps << endl;
-    bool epsilon_greedy = eps >= prob;
+    bool epsilon_greedy = p >= prob;
     vector<State> min_state = vector<State>();
     int min_h = INT_MAX;
     for(StateID sid : children){
         State succ_state = state_registry.lookup_state(sid);
         TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
         int h = succ_node.get_best_h();
-        if(succ_node.is_dead_end() || h == INT_MAX){
-            continue;
-        }
         if(epsilon_greedy || h == min_h){
             min_state.push_back(succ_state);
         }else if(h < min_h){
@@ -122,16 +179,11 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
             statistics.inc_evaluated_states();
             int h  = succ_eval_context.get_result(heuristic.get()).get_evaluator_value();
             succ_node.open(node, op, get_adjusted_cost(op), h);
-            int succ_dist = node.get_distance_from_root()+1;
-            //cout << "succ_dist " << succ_dist << endl; 
-            succ_node.set_distance_from_root(succ_dist);
-            if(succ_dist > max_distance){
-                max_distance = succ_dist;
-                //cout << "new max dist " << max_distance << endl; 
-            }
+            succ_node.add_reward(h);
             if(h >= bound){
                 succ_node.mark_as_dead_end();
-                succ_node.set_best_h(INT_MAX);
+                succ_node.set_best_h(INT_MAX);//TODO : remove child from parents children list
+                node.remove_child(succ_id);
             }
         }else if(succ_node.is_closed() && reopen_closed_nodes){
             int new_succ_g = node.get_real_g() + op.get_cost();
@@ -149,15 +201,6 @@ SearchStatus MonteCarloTreeSearch::expand_tree(const State state){
                 //cout<< "old parent:"<<previous_parent.get_id() << " new parent:" << state.get_id() << endl;
                 pred_node.remove_child(succ_id);//remove child from old parent
                 node.add_child(succ_id);//new parent node is state
-
-                
-                int succ_dist = node.get_distance_from_root()+1;
-                //cout << "succ_dist " << succ_dist << endl; 
-                succ_node.set_distance_from_root(succ_dist);
-                if(succ_dist > max_distance){
-                    max_distance = succ_dist;
-                    //cout << "new max dist " << max_distance << endl; 
-                }
                     
                 succ_node.reopen(node,op,get_adjusted_cost(op));
                 statistics.inc_reopened();
@@ -200,22 +243,27 @@ void MonteCarloTreeSearch::back_propagate(State state){
             min_h = h_child;
         dead_end = false;
     }
+    StateID pred_id = node.get_parent();
     if(dead_end && !node.is_dead_end()) {
         assert(min_h == INT_MAX);
         //cout << "children:" << node.get_children() << endl;
         //cout << "mark bp:" << state.get_id() << endl;
         node.mark_as_dead_end();
+        if(pred_id != StateID::no_state){
+            TreeSearchNode pred_node = tree_search_space.get_node(state_registry.lookup_state(pred_id));
+            pred_node.remove_child(state.get_id());
+        }
         node.set_best_h(min_h);
         statistics.inc_dead_ends();
     }else if(!dead_end){
-        int curr_h = node.get_best_h();
-        if(curr_h == min_h){
-            return;
-        }
+        //int curr_h = node.get_best_h();
+        //if(curr_h == min_h){
+        //    return;
+        //}
         assert(min_h != INT_MAX);
+        node.add_reward(min_h);
         node.set_best_h(min_h);
     }
-    StateID pred_id = node.get_parent();
     OperatorID pred_op = node.get_operator();
     if(pred_id != StateID::no_state && pred_op != OperatorID::no_operator){
         State pred = state_registry.lookup_state(pred_id);
@@ -246,10 +294,14 @@ static shared_ptr<SearchEngine> _parse(OptionParser &parser) {
         "h",
         "set heuristic.");
 
-    parser.add_option<double>("epsilon",
-                         "Epsilon", "0.001");
+    parser.add_option<double>("p",
+                         "probability", "0.001");
     parser.add_option<bool>("reopen_closed_nodes",
                          "Reopen", "false");
+    parser.add_option<double>("epsilon",
+                         "ME coefficient", "3");
+    parser.add_option<double>("delta",
+                         "confidence", "0.05");
     SearchEngine::add_options_to_parser(parser);
     Options opts = parser.parse();
 
