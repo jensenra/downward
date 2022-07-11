@@ -172,6 +172,7 @@ void TreeSearchNode::remove_child(StateID id){
 
 void TreeSearchNode::reset_visited(){
     info.visited = 0;
+    info.reward_sum = 0;
 }
 
 int TreeSearchNode::get_best_h(){
