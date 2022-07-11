@@ -11,7 +11,7 @@ using namespace std;
 
 struct TreeSearchNodeInfo : public SearchNodeInfo{
     int l;
-    double reward_sum;
+    int reward_sum;
     int visited;
     int best_h;
     vector<StateID> children_state_ids;

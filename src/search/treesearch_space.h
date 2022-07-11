@@ -33,7 +33,7 @@ public:
     void inc_l();
     void reset_visited();
     void add_reward(double reward);
-    double get_reward() const;
+    int get_reward() const;
     int get_l() const;
     int get_visited() const;
 

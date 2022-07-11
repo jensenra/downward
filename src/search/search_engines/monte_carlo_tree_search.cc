@@ -125,7 +125,8 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
                 //cout << "median removal: "<< state.get_id() << endl;
                 if(succ_node.get_best_h() != node.get_best_h())
                     node.remove_child(sid);
-            }else succ_node.reset_visited();
+            }
+            succ_node.reset_visited();
         }
         node.inc_l();
     }
