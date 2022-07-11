@@ -44,8 +44,13 @@ exp.add_step('build', exp.build)
 exp.add_step('start', exp.start_runs)
 exp.add_fetcher(name='fetch')
 
-exp.add_absolute_report_step()
+#exp.add_absolute_report_step()
 #exp.add_comparison_table_step()
-#exp.add_scatter_plot_step(relative=True, attributes=["total_time", "memory"])
+addi = []
+for ic in CONFIGS:
+    for ic2 in CONFIGS:
+        if(ic.nick != ic2.nick):
+            addi.append([ic.nick,ic2.nick, REVISIONS[0],REVISIONS[0], IssueExperiment.DEFAULT_SCATTER_PLOT_ATTRIBUTES])
+exp.add_scatter_plot_step(attributes=["total_time", "memory"], additional = addi)
 
 exp.run_steps()

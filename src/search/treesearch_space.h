@@ -29,6 +29,14 @@ public:
     bool is_closed() const;
     bool is_dead_end() const;
 
+    void inc_visited();
+    void inc_l();
+    void reset_visited();
+    void add_reward(double reward);
+    double get_reward() const;
+    int get_l() const;
+    int get_visited() const;
+
     int get_g() const;
     int get_real_g() const;
     vector<StateID> get_children();
@@ -41,7 +49,7 @@ public:
     void set_best_h(int new_best_h);
     void open(const TreeSearchNode &parent_node,
               const OperatorProxy &parent_op,
-              int adjusted_cost);
+              int adjusted_cost, int h);
     void reopen(const TreeSearchNode &parent_node,
                 const OperatorProxy &parent_op,
                 int adjusted_cost);

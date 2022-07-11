@@ -8,6 +8,7 @@
 #include "utils/logging.h"
 
 #include <cassert>
+#include <limits.h>
 
 using namespace std;
 
@@ -33,6 +34,30 @@ bool TreeSearchNode::is_dead_end() const {
 
 bool TreeSearchNode::is_new() const {
     return info.status == TreeSearchNodeInfo::NEW;
+}
+
+void TreeSearchNode::inc_visited() {
+    info.visited += 1;
+}
+
+void TreeSearchNode::inc_l() {
+    info.l += 1;
+}
+
+void TreeSearchNode::add_reward(double reward){
+    info.reward_sum += reward;
+}
+
+int TreeSearchNode::get_visited() const {
+    return info.visited;
+}
+
+int TreeSearchNode::get_l() const {
+    return info.l;
+}
+
+double TreeSearchNode::get_reward() const {
+    return info.reward_sum;
 }
 
 int TreeSearchNode::get_g() const {
@@ -67,13 +92,14 @@ void TreeSearchNode::open_initial(int h) {
 
 void TreeSearchNode::open(const TreeSearchNode &parent_node,
                       const OperatorProxy &parent_op,
-                      int adjusted_cost) {
+                      int adjusted_cost, int h) {
     assert(info.status == TreeSearchNodeInfo::NEW);
     info.status = TreeSearchNodeInfo::OPEN;
     info.g = parent_node.info.g + adjusted_cost;
     info.real_g = parent_node.info.real_g + parent_op.get_cost();
     info.parent_state_id = parent_node.get_state().get_id();
     info.creating_operator = OperatorID(parent_op.get_id());
+    info.best_h = h;
 }
 
 void TreeSearchNode::update_g(int g_diff){
@@ -144,6 +170,11 @@ void TreeSearchNode::remove_child(StateID id){
     //cout << info.children_state_ids<<"  after" << endl;
 }
 
+void TreeSearchNode::reset_visited(){
+    info.visited = 0;
+    info.reward_sum = 0;
+}
+
 int TreeSearchNode::get_best_h(){
     return info.best_h;
 }
@@ -166,7 +197,7 @@ void TreeSearchSpace::trace_path(const State &goal_state,
     assert(current_state.get_registry() == &state_registry);
     assert(path.empty());
     for (;;) {
-        //cout << "trace" << current_state.get_id() << endl;
+        cout << "trace" << current_state.get_id() << endl;
         const TreeSearchNodeInfo &info = search_node_infos[current_state];
         if (info.creating_operator == OperatorID::no_operator) {
             assert(info.parent_state_id == StateID::no_state);
