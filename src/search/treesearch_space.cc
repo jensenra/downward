@@ -44,7 +44,7 @@ void TreeSearchNode::inc_l() {
     info.l += 1;
 }
 
-void TreeSearchNode::add_reward(double reward){
+void TreeSearchNode::add_reward(int reward){
     info.reward_sum += reward;
 }
 
