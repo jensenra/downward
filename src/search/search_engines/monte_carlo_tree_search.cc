@@ -72,7 +72,7 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
         if(succ_node.get_best_h() == node.get_best_h())
             total_best_successors_visit_sum += succ_node.get_visited();
     }
-    eps *= sqrt((double)(max_distance - dist)*total_best_successors_visit_sum/(max_distance*node.get_visited()));
+    eps *= (double)((max_distance - dist)*total_best_successors_visit_sum)/(max_distance*node.get_visited());
     //cout << eps << endl;
     bool epsilon_greedy = eps >= prob;
     vector<State> min_state = vector<State>();
