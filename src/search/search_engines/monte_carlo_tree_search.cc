@@ -55,7 +55,6 @@ bool MonteCarloTreeSearch::check_goal_and_set_plan(const State &state) {
 
 State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     TreeSearchNode node = tree_search_space.get_node(state);
-    StateID par = node.get_parent();
     node.inc_visited();
     assert(!node.is_new() && !node.is_dead_end());
     if(node.is_open()){
@@ -66,10 +65,14 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     double prob = drand48();
     int dist = node.get_distance_from_root();
     double eps = epsilon;
-    if(par != StateID::no_state){
-        TreeSearchNode parent_node = tree_search_space.get_node(state_registry.lookup_state(par));
-        eps *= sqrt((double)(max_distance - dist)*node.get_visited()/(max_distance*parent_node.get_visited()));
-    }else eps *= sqrt((double)(max_distance - dist)/(max_distance));
+    int total_best_successors_visit_sum = 0;
+    for(StateID sid : children){
+        State succ_state = state_registry.lookup_state(sid);
+        TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
+        if(succ_node.get_best_h() == node.get_best_h())
+            total_best_successors_visit_sum += succ_node.get_visited();
+    }
+    eps *= sqrt((double)(max_distance - dist)*total_best_successors_visit_sum/(max_distance*node.get_visited()));
     //cout << eps << endl;
     bool epsilon_greedy = eps >= prob;
     vector<State> min_state = vector<State>();
