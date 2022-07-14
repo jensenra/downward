@@ -123,9 +123,10 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
             TreeSearchNode succ_node = tree_search_space.get_node(succ_state);
             if(succ_node.get_reward()/succ_node.get_visited() > median){
                 //cout << "median removal: "<< state.get_id() << endl;
-                if(succ_node.get_best_h() != node.get_best_h())
+                if(succ_node.get_best_h() != node.get_best_h()){
                     node.remove_child(sid);
                     node.add_child_to_forgotten(sid);
+                }
             }
             succ_node.reset_visited();
         }
