@@ -170,6 +170,24 @@ void TreeSearchNode::remove_child(StateID id){
     //cout << info.children_state_ids<<"  after" << endl;
 }
 
+bool TreeSearchNode::is_forgotten_empty() const {
+    return info.forgotten_children.empty();
+}
+
+
+void TreeSearchNode::add_child_to_forgotten(StateID id){
+    bool not_found = find(info.forgotten_children.begin(),info.forgotten_children.end(),id) == info.forgotten_children.end();
+    if(not_found){
+        info.forgotten_children.push_back(childID);
+    }
+}
+
+void TreeSearchNode::add_forgotten_to_child(){
+    for(StateID sid : info.forgotten_children){
+        this->add_child(sid);
+    }
+}
+
 void TreeSearchNode::reset_visited(){
     info.visited = 0;
     info.reward_sum = 0;

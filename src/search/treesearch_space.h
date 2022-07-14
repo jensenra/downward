@@ -36,7 +36,7 @@ public:
     int get_reward() const;
     int get_l() const;
     int get_visited() const;
-
+    bool is_forgotten_empty() const;
     int get_g() const;
     int get_real_g() const;
     vector<StateID> get_children();
@@ -44,6 +44,8 @@ public:
     StateID get_parent();
     OperatorID get_operator();
     void remove_child(StateID id);
+    void add_child_to_forgotten(StateID id);
+    void add_forgotten_to_child();
     void open_initial(int h);
     int get_best_h();
     void set_best_h(int new_best_h);

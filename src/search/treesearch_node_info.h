@@ -15,6 +15,7 @@ struct TreeSearchNodeInfo : public SearchNodeInfo{
     int visited;
     int best_h;
     vector<StateID> children_state_ids;
+    vector<StateID> forgotten_children;
     
 
     TreeSearchNodeInfo();

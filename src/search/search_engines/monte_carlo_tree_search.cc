@@ -125,6 +125,7 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
                 //cout << "median removal: "<< state.get_id() << endl;
                 if(succ_node.get_best_h() != node.get_best_h())
                     node.remove_child(sid);
+                    node.add_child_to_forgotten(sid);
             }
             succ_node.reset_visited();
         }
@@ -246,16 +247,22 @@ void MonteCarloTreeSearch::back_propagate(State state){
     }
     StateID pred_id = node.get_parent();
     if(dead_end && !node.is_dead_end()) {
-        assert(min_h == INT_MAX);
-        //cout << "children:" << node.get_children() << endl;
-        //cout << "mark bp:" << state.get_id() << endl;
-        node.mark_as_dead_end();
-        if(pred_id != StateID::no_state){
-            TreeSearchNode pred_node = tree_search_space.get_node(state_registry.lookup_state(pred_id));
-            pred_node.remove_child(state.get_id());
+        if(node.is_forgotten_empty()){//If we havent eliminated any successors of this node.
+            assert(min_h == INT_MAX);
+            //cout << "children:" << node.get_children() << endl;
+            //cout << "mark bp:" << state.get_id() << endl;
+            node.mark_as_dead_end();
+            if(pred_id != StateID::no_state){
+                TreeSearchNode pred_node = tree_search_space.get_node(state_registry.lookup_state(pred_id));
+                pred_node.remove_child(state.get_id());
+            }
+            node.set_best_h(min_h);
+            statistics.inc_dead_ends();
+        }else {
+            node.add_forgotten_to_child(); //Add forgotten children back to the children
+            back_propagate(state); //back propagating with new successors
+            return; // We dont want to bp a second time.
         }
-        node.set_best_h(min_h);
-        statistics.inc_dead_ends();
     }else if(!dead_end){
         //int curr_h = node.get_best_h();
         //if(curr_h == min_h){
