@@ -63,8 +63,8 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
     vector<StateID> children = node.get_children();
     assert(!children.empty());
     double prob = drand48();
-    int dist = node.get_distance_from_root();
-    double eps = epsilon;
+    //int dist = node.get_distance_from_root();
+    double eps;
     int total_best_successors_visit_sum = 0;
     for(StateID sid : children){
         State succ_state = state_registry.lookup_state(sid);
@@ -72,7 +72,7 @@ State MonteCarloTreeSearch::select_next_leaf_node(const State state){
         if(succ_node.get_best_h() == node.get_best_h())
             total_best_successors_visit_sum += succ_node.get_visited();
     }
-    eps *= (double)((max_distance - dist)*total_best_successors_visit_sum)/(max_distance*node.get_visited());
+    eps = epsilon * pow((double)total_best_successors_visit_sum/node.get_visited(),3);
     //cout << eps << endl;
     bool epsilon_greedy = eps >= prob;
     vector<State> min_state = vector<State>();
